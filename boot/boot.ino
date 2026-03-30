@@ -25,9 +25,18 @@ unsigned long bootStartTime = 0;
 const unsigned long BOOT_DURATION = 3000;
 
 // Menu State
-const char* gameOptions[] = {"Pong", "Snake", "Tetris", "Invaders", "Settings"};
-const int numOptions = 5;
+enum MenuPage { PAGE_MAIN, PAGE_ACTIONS, PAGE_GAMES, PAGE_KEY, PAGE_SETTINGS };
+MenuPage currentMenu = PAGE_MAIN;
 int currentSelection = 0;
+
+const char* menuMain[] = {"ACTIONS", "GAMES", "KEY", "SETTINGS"};
+const int numMain = 4;
+
+const char* menuGames[] = {"< Back", "Pong", "Snake", "Tetris", "Invaders"};
+const int numGames = 5;
+
+const char* menuDefaultSub[] = {"< Back"};
+const int numDefaultSub = 1;
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
@@ -78,23 +87,49 @@ void booting_up() {
 }
 
 void handleMenuInput() {
-  static bool prevUp = true;
-  static bool prevDown = true;
+  static bool prevUp = HIGH, prevDown = HIGH, prevSel = HIGH;
   
   bool currUp = digitalRead(BTN_UP);
   bool currDown = digitalRead(BTN_DOWN);
+  bool currSel = digitalRead(BTN_SELECT);
+  
+  int maxOptions = (currentMenu == PAGE_MAIN) ? numMain : 
+                   (currentMenu == PAGE_GAMES) ? numGames : numDefaultSub;
   
   if (prevUp == HIGH && currUp == LOW) {
     currentSelection--;
-    if (currentSelection < 0) currentSelection = numOptions - 1;
+    if (currentSelection < 0) currentSelection = maxOptions - 1;
   }
   if (prevDown == HIGH && currDown == LOW) {
     currentSelection++;
-    if (currentSelection >= numOptions) currentSelection = 0;
+    if (currentSelection >= maxOptions) currentSelection = 0;
+  }
+  
+  if (prevSel == HIGH && currSel == LOW) {
+    if (currentMenu == PAGE_MAIN) {
+      if (currentSelection == 0) currentMenu = PAGE_ACTIONS;
+      else if (currentSelection == 1) currentMenu = PAGE_GAMES;
+      else if (currentSelection == 2) currentMenu = PAGE_KEY;
+      else if (currentSelection == 3) currentMenu = PAGE_SETTINGS;
+      currentSelection = 0;
+    } else {
+      if (currentSelection == 0) {
+        // Back selected
+        int prevSelection = 0;
+        if (currentMenu == PAGE_ACTIONS) prevSelection = 0;
+        else if (currentMenu == PAGE_GAMES) prevSelection = 1;
+        else if (currentMenu == PAGE_KEY) prevSelection = 2;
+        else if (currentMenu == PAGE_SETTINGS) prevSelection = 3;
+        
+        currentMenu = PAGE_MAIN;
+        currentSelection = prevSelection;
+      }
+    }
   }
   
   prevUp = currUp;
   prevDown = currDown;
+  prevSel = currSel;
 }
 
 void drawMenu() {
@@ -103,13 +138,40 @@ void drawMenu() {
   display.setTextWrap(false);
   
   display.setTextColor(1);
-  display.setCursor(55, 10);
-  display.print("MENU");
   
-  for (int i = 0; i < numOptions; i++) {
+  const char** optionsList;
+  int maxOptions;
+  
+  if (currentMenu == PAGE_MAIN) {
+    display.setCursor(55, 10);
+    display.print("MENU");
+    optionsList = menuMain;
+    maxOptions = numMain;
+  } else if (currentMenu == PAGE_GAMES) {
+    display.setCursor(50, 10);
+    display.print("GAMES");
+    optionsList = menuGames;
+    maxOptions = numGames;
+  } else if (currentMenu == PAGE_ACTIONS) {
+    display.setCursor(45, 10);
+    display.print("ACTIONS");
+    optionsList = menuDefaultSub;
+    maxOptions = numDefaultSub;
+  } else if (currentMenu == PAGE_KEY) {
+    display.setCursor(55, 10);
+    display.print("KEY");
+    optionsList = menuDefaultSub;
+    maxOptions = numDefaultSub;
+  } else if (currentMenu == PAGE_SETTINGS) {
+    display.setCursor(40, 10);
+    display.print("SETTINGS");
+    optionsList = menuDefaultSub;
+    maxOptions = numDefaultSub;
+  }
+  
+  for (int i = 0; i < maxOptions; i++) {
     int y = 20 + (i * 8);
     
-    // Draw inverted background for selected item
     if (i == currentSelection) {
       display.fillRect(0, y - 6, 128, 8, 1);
       display.setTextColor(0);
@@ -117,9 +179,8 @@ void drawMenu() {
       display.setTextColor(1);
     }
     
-    // Center text slightly over to the right
     display.setCursor(10, y);
-    display.print(gameOptions[i]);
+    display.print(optionsList[i]);
   }
   display.display();
 }
