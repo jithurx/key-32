@@ -27,6 +27,7 @@
 #include "keys/keys.h"
 #include "settings/settings.h"
 #include "wifi/wifi.h"
+#include "wifi/hotspot.h"
 
 // Application State
 enum AppState { STATE_BOOTING, STATE_MENU, STATE_PLAYING };
@@ -35,12 +36,12 @@ unsigned long bootStartTime = 0;
 const unsigned long BOOT_DURATION = 3000;
 
 // Menu State
-enum MenuPage { PAGE_MAIN, PAGE_ACTIONS, PAGE_GAMES, PAGE_KEY, PAGE_SETTINGS, PAGE_WIFI };
+enum MenuPage { PAGE_MAIN, PAGE_ACTIONS, PAGE_GAMES, PAGE_KEY, PAGE_SETTINGS, PAGE_WIFI, PAGE_HOTSPOT };
 MenuPage currentMenu = PAGE_MAIN;
 int currentSelection = 0;
 
-const char* menuMain[] = {"ACTIONS", "GAMES", "KEY", "SETTINGS", "WIFI"};
-const int numMain = 5;
+const char* menuMain[] = {"ACTIONS", "GAMES", "KEY", "SETTINGS", "WIFI", "HOTSPOT"};
+const int numMain = 6;
 
 const char* menuGames[] = {"< Back", "Pong", "Snake", "Tetris", "Invaders"};
 const int numGames = 5;
@@ -129,6 +130,7 @@ void handleMenuInput() {
         else if (currentSelection == 2) currentMenu = PAGE_KEY;
         else if (currentSelection == 3) currentMenu = PAGE_SETTINGS;
         else if (currentSelection == 4) currentMenu = PAGE_WIFI;
+        else if (currentSelection == 5) currentMenu = PAGE_HOTSPOT;
         currentState = STATE_PLAYING;
       }
     } else {
@@ -264,6 +266,8 @@ void loop() {
       openSettings();
     } else if (currentMenu == PAGE_WIFI) {
       openWifi();
+    } else if (currentMenu == PAGE_HOTSPOT) {
+      openHotspot();
     }
     
     // Subsystem execution has finished (return to menu)
@@ -273,6 +277,7 @@ void loop() {
       else if (currentMenu == PAGE_KEY) currentSelection = 2;
       else if (currentMenu == PAGE_SETTINGS) currentSelection = 3;
       else if (currentMenu == PAGE_WIFI) currentSelection = 4;
+      else if (currentMenu == PAGE_HOTSPOT) currentSelection = 5;
       currentMenu = PAGE_MAIN;
     }
     currentState = STATE_MENU;

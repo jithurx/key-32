@@ -14,3 +14,7 @@ const WifiNetwork networks[] = {
 const int numNetworks = 2;
 
 // Add any future API keys, tokens, or sensitive settings here
+
+// Access Point (Hotspot) Mode Configuration
+const char* ap_ssid = "Key32_AP";
+const char* ap_password = "password123";
