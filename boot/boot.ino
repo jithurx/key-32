@@ -1,3 +1,4 @@
+#include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include "Picopixel.h"
@@ -5,6 +6,10 @@
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
+
+// ESP32 I2C Pins for SSD1306 OLED
+#define I2C_SDA 21
+#define I2C_SCL 22
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
@@ -58,6 +63,9 @@ void booting_up() {
 
 
 void setup() {
+  Serial.begin(115200);
+  Wire.begin(I2C_SDA, I2C_SCL);
+
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;);
