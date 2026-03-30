@@ -46,6 +46,6 @@ Connect your 5 navigational push buttons between the listed GPIO pins and GND. T
 1. Install the required libraries in the Arduino IDE:
    - `Adafruit GFX Library`
    - `Adafruit SSD1306`
-2. Open the `boot/boot.ino` file in the Arduino IDE.
+2. Open the `key32/key32.ino` file in the Arduino IDE.
 3. Select your exact ESP32 board model and appropriate COM port.
 4. Compile and upload the sketch to the ESP32. Set your serial monitor to **115200 baud** to see any error messages (if the display fails to allocate memory).

@@ -4,6 +4,15 @@
 #include "Picopixel.h"
 #include "image_data.h"
 
+// Subsystem Modules
+#include "games/pong.h"
+#include "games/snake.h"
+#include "games/tetris.h"
+#include "games/invaders.h"
+#include "actions/actions.h"
+#include "keys/keys.h"
+#include "settings/settings.h"
+
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
@@ -19,7 +28,7 @@
 #define BTN_SELECT 27
 
 // Application State
-enum AppState { STATE_BOOTING, STATE_MENU };
+enum AppState { STATE_BOOTING, STATE_MENU, STATE_PLAYING };
 AppState currentState = STATE_BOOTING;
 unsigned long bootStartTime = 0;
 const unsigned long BOOT_DURATION = 3000;
@@ -123,6 +132,9 @@ void handleMenuInput() {
         
         currentMenu = PAGE_MAIN;
         currentSelection = prevSelection;
+      } else {
+        // Dispatch to target Module
+        currentState = STATE_PLAYING;
       }
     }
   }
@@ -217,5 +229,22 @@ void loop() {
     handleMenuInput();
     drawMenu();
     delay(20);
+  } else if (currentState == STATE_PLAYING) {
+    // Route to particular subsystem execution logic
+    if (currentMenu == PAGE_GAMES) {
+      if (currentSelection == 1) playPong();
+      else if (currentSelection == 2) playSnake();
+      else if (currentSelection == 3) playTetris();
+      else if (currentSelection == 4) playInvaders();
+    } else if (currentMenu == PAGE_ACTIONS) {
+      openActions();
+    } else if (currentMenu == PAGE_KEY) {
+      openKeys();
+    } else if (currentMenu == PAGE_SETTINGS) {
+      openSettings();
+    }
+    
+    // Subsystem execution has finished (return to menu)
+    currentState = STATE_MENU;
   }
 }
