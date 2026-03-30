@@ -24,12 +24,12 @@ void boot_logo() {
 void boot_wait_spin() {
   display.clearDisplay();
   display.drawBitmap(60, 28, image_Pin_star_bits, 7, 7, 1);
-  display.drawBitmap(60, 28, image_Layer_2_bits, 7, 7, 0);
+  display.drawBitmap(60, 28, image_star_spin_frame1_bits, 7, 7, 0);
   display.display();
   delay(50);
   display.clearDisplay();
   display.drawBitmap(60, 28, image_Pin_star_bits, 7, 7, 1);
-  display.drawBitmap(60, 28, image_Layer_3_bits, 7, 7, 0);
+  display.drawBitmap(60, 28, image_star_spin_frame2_bits, 7, 7, 0);
   display.display();
   delay(50);
 }
