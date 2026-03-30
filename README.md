@@ -8,6 +8,8 @@ An ESP32-based retro gaming keychain project featuring a custom startup sequence
 - Interactive game selection menu with visual cursor highlighting
 - Configurable push-button directional and action UI controls
 - Non-blocking state-machine architecture for the display loops
+- **WiFi Capabilities:** Connect to pre-programmed wireless networks via visual GUI
+- **Subsystem Apps:** Modular architecture supporting utilities (like HTTP Ping Google) and Games (Pong)
 
 ## Hardware Requirements
 
@@ -40,6 +42,13 @@ Connect your 5 navigational push buttons between the listed GPIO pins and GND. T
 | SELECT | GPIO 27 |
 
 *Note: Depending on your specific ESP32 board, the location of 3.3V and GND might vary, but I2C pins 21 and 22 are the standard hardware defaults for SDA and SCL respectively.*
+
+## Configuration
+
+This project manages sensitive Wi-Fi credentials via a local header file to keep them out of version control systems.
+1. Navigate to the `key32/` directory.
+2. We've provided a boilerplate `config.example.h` file. Rename this file (or copy it) to `config.h`.
+3. Open `config.h` and enter your personal network SSIDs and Passwords in the defined array.
 
 ## Usage
 

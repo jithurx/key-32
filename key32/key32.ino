@@ -120,12 +120,17 @@ void handleMenuInput() {
   
   if (prevSel == HIGH && currSel == LOW) {
     if (currentMenu == PAGE_MAIN) {
-      if (currentSelection == 0) currentMenu = PAGE_ACTIONS;
-      else if (currentSelection == 1) currentMenu = PAGE_GAMES;
-      else if (currentSelection == 2) currentMenu = PAGE_KEY;
-      else if (currentSelection == 3) currentMenu = PAGE_SETTINGS;
-      else if (currentSelection == 4) currentMenu = PAGE_WIFI;
-      currentSelection = 0;
+      if (currentSelection == 1) {
+        currentMenu = PAGE_GAMES;
+        currentSelection = 0;
+      } else {
+        // Direct Action Subsystems dispatch immediately
+        if (currentSelection == 0) currentMenu = PAGE_ACTIONS;
+        else if (currentSelection == 2) currentMenu = PAGE_KEY;
+        else if (currentSelection == 3) currentMenu = PAGE_SETTINGS;
+        else if (currentSelection == 4) currentMenu = PAGE_WIFI;
+        currentState = STATE_PLAYING;
+      }
     } else {
       if (currentSelection == 0) {
         // Back selected
@@ -262,6 +267,14 @@ void loop() {
     }
     
     // Subsystem execution has finished (return to menu)
+    if (currentMenu != PAGE_GAMES) {
+      // Return to Main Menu for full screen apps
+      if (currentMenu == PAGE_ACTIONS) currentSelection = 0;
+      else if (currentMenu == PAGE_KEY) currentSelection = 2;
+      else if (currentMenu == PAGE_SETTINGS) currentSelection = 3;
+      else if (currentMenu == PAGE_WIFI) currentSelection = 4;
+      currentMenu = PAGE_MAIN;
+    }
     currentState = STATE_MENU;
   }
 }
