@@ -23,6 +23,7 @@
 #include "games/snake.h"
 #include "games/tetris.h"
 #include "games/invaders.h"
+#include "games/dino.h"
 #include "actions/actions.h"
 #include "keys/keys.h"
 #include "settings/settings.h"
@@ -42,8 +43,8 @@ int currentSelection = 0;
 const char* menuMain[] = {"ACTIONS", "GAMES", "KEY", "SETTINGS", "WIFI"};
 const int numMain = 5;
 
-const char* menuGames[] = {"< Back", "Pong", "Snake", "Tetris", "Invaders"};
-const int numGames = 5;
+const char* menuGames[] = {"< Back", "Pong", "Snake", "Tetris", "Invaders", "Dino"};
+const int numGames = 6;
 
 const char* menuDefaultSub[] = {"< Back"};
 const int numDefaultSub = 1;
@@ -256,6 +257,7 @@ void loop() {
       else if (currentSelection == 2) playSnake();
       else if (currentSelection == 3) playTetris();
       else if (currentSelection == 4) playInvaders();
+      else if (currentSelection == 5) playDino();
     } else if (currentMenu == PAGE_ACTIONS) {
       openActions();
     } else if (currentMenu == PAGE_KEY) {
