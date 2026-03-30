@@ -4,15 +4,6 @@
 #include "Picopixel.h"
 #include "image_data.h"
 
-// Subsystem Modules
-#include "games/pong.h"
-#include "games/snake.h"
-#include "games/tetris.h"
-#include "games/invaders.h"
-#include "actions/actions.h"
-#include "keys/keys.h"
-#include "settings/settings.h"
-
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
@@ -27,6 +18,16 @@
 #define BTN_RIGHT 26
 #define BTN_SELECT 27
 
+// Subsystem Modules
+#include "games/pong.h"
+#include "games/snake.h"
+#include "games/tetris.h"
+#include "games/invaders.h"
+#include "actions/actions.h"
+#include "keys/keys.h"
+#include "settings/settings.h"
+#include "wifi/wifi.h"
+
 // Application State
 enum AppState { STATE_BOOTING, STATE_MENU, STATE_PLAYING };
 AppState currentState = STATE_BOOTING;
@@ -34,12 +35,12 @@ unsigned long bootStartTime = 0;
 const unsigned long BOOT_DURATION = 3000;
 
 // Menu State
-enum MenuPage { PAGE_MAIN, PAGE_ACTIONS, PAGE_GAMES, PAGE_KEY, PAGE_SETTINGS };
+enum MenuPage { PAGE_MAIN, PAGE_ACTIONS, PAGE_GAMES, PAGE_KEY, PAGE_SETTINGS, PAGE_WIFI };
 MenuPage currentMenu = PAGE_MAIN;
 int currentSelection = 0;
 
-const char* menuMain[] = {"ACTIONS", "GAMES", "KEY", "SETTINGS"};
-const int numMain = 4;
+const char* menuMain[] = {"ACTIONS", "GAMES", "KEY", "SETTINGS", "WIFI"};
+const int numMain = 5;
 
 const char* menuGames[] = {"< Back", "Pong", "Snake", "Tetris", "Invaders"};
 const int numGames = 5;
@@ -57,17 +58,20 @@ void boot_logo() {
   delay(2000);
 }
 
-void boot_wait_spin() {
-  display.clearDisplay();
-  display.drawBitmap(60, 28, image_Pin_star_bits, 7, 7, 1);
-  display.drawBitmap(60, 28, image_star_spin_frame1_bits, 7, 7, 0);
-  display.display();
-  delay(50);
-  display.clearDisplay();
-  display.drawBitmap(60, 28, image_Pin_star_bits, 7, 7, 1);
-  display.drawBitmap(60, 28, image_star_spin_frame2_bits, 7, 7, 0);
-  display.display();
-  delay(50);
+void wait_spin(unsigned long duration_ms) {
+  unsigned long start = millis();
+  while(millis() - start < duration_ms) {
+    display.clearDisplay();
+    display.drawBitmap(60, 28, image_Pin_star_bits, 7, 7, 1);
+    display.drawBitmap(60, 28, image_star_spin_frame1_bits, 7, 7, 0);
+    display.display();
+    delay(50);
+    display.clearDisplay();
+    display.drawBitmap(60, 28, image_Pin_star_bits, 7, 7, 1);
+    display.drawBitmap(60, 28, image_star_spin_frame2_bits, 7, 7, 0);
+    display.display();
+    delay(50);
+  }
 }
 
 void booting_up() {
@@ -120,6 +124,7 @@ void handleMenuInput() {
       else if (currentSelection == 1) currentMenu = PAGE_GAMES;
       else if (currentSelection == 2) currentMenu = PAGE_KEY;
       else if (currentSelection == 3) currentMenu = PAGE_SETTINGS;
+      else if (currentSelection == 4) currentMenu = PAGE_WIFI;
       currentSelection = 0;
     } else {
       if (currentSelection == 0) {
@@ -129,6 +134,7 @@ void handleMenuInput() {
         else if (currentMenu == PAGE_GAMES) prevSelection = 1;
         else if (currentMenu == PAGE_KEY) prevSelection = 2;
         else if (currentMenu == PAGE_SETTINGS) prevSelection = 3;
+        else if (currentMenu == PAGE_WIFI) prevSelection = 4;
         
         currentMenu = PAGE_MAIN;
         currentSelection = prevSelection;
@@ -177,6 +183,11 @@ void drawMenu() {
   } else if (currentMenu == PAGE_SETTINGS) {
     display.setCursor(40, 10);
     display.print("SETTINGS");
+    optionsList = menuDefaultSub;
+    maxOptions = numDefaultSub;
+  } else if (currentMenu == PAGE_WIFI) {
+    display.setCursor(50, 10);
+    display.print("WIFI");
     optionsList = menuDefaultSub;
     maxOptions = numDefaultSub;
   }
@@ -230,6 +241,10 @@ void loop() {
     drawMenu();
     delay(20);
   } else if (currentState == STATE_PLAYING) {
+    
+    // Show spinning star loading animation before game runs
+    wait_spin(1000);
+    
     // Route to particular subsystem execution logic
     if (currentMenu == PAGE_GAMES) {
       if (currentSelection == 1) playPong();
@@ -242,6 +257,8 @@ void loop() {
       openKeys();
     } else if (currentMenu == PAGE_SETTINGS) {
       openSettings();
+    } else if (currentMenu == PAGE_WIFI) {
+      openWifi();
     }
     
     // Subsystem execution has finished (return to menu)
