@@ -199,8 +199,25 @@ void drawMenu() {
     maxOptions = numDefaultSub;
   }
   
-  for (int i = 0; i < maxOptions; i++) {
-    int y = 20 + (i * 8);
+  static int menuScroll = 0;
+  int visibleItems = 5;
+  
+  if (currentSelection < menuScroll) {
+    menuScroll = currentSelection;
+  } else if (currentSelection >= menuScroll + visibleItems) {
+    menuScroll = currentSelection - visibleItems + 1;
+  }
+  
+  if (menuScroll > maxOptions - visibleItems) {
+    menuScroll = maxOptions - visibleItems;
+  }
+  if (menuScroll < 0) {
+    menuScroll = 0;
+  }
+  
+  for (int i = menuScroll; i < menuScroll + visibleItems && i < maxOptions; i++) {
+    int displayIndex = i - menuScroll;
+    int y = 20 + (displayIndex * 8);
     
     if (i == currentSelection) {
       display.fillRect(0, y - 6, 128, 8, 1);
@@ -212,6 +229,14 @@ void drawMenu() {
     display.setCursor(10, y);
     display.print(optionsList[i]);
   }
+  
+  if (menuScroll > 0) {
+    display.fillTriangle(120, 18, 116, 22, 124, 22, 1);
+  }
+  if (menuScroll + visibleItems < maxOptions) {
+    display.fillTriangle(120, 56, 116, 52, 124, 52, 1);
+  }
+
   display.display();
 }
 
